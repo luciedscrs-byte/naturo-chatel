@@ -1,0 +1,77 @@
+/* ===== Espace praticienne (agenda.html) ===== */
+.espace { min-height: 100vh; }
+.espace__top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 20px; background: var(--paper); border-bottom: 1px solid var(--line); }
+.espace__top .header__logo img { height: 46px; width: auto; }
+.espace__liens { display: flex; gap: 1.2rem; align-items: center; font-size: .9rem; white-space: nowrap; }
+.espace__liens a, .espace__liens button { color: var(--green-text); background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Connexion */
+.connexion { display: grid; place-items: center; padding: clamp(3rem, 10vh, 7rem) 16px; }
+.connexion__boite { width: 100%; max-width: 400px; background: var(--paper); border-radius: var(--r); padding: 2.4rem; border-top: 4px solid var(--terracotta); display: grid; gap: 1rem; }
+.connexion__boite h1 { font-size: 2.8rem; margin: 0; }
+.connexion__texte { color: var(--muted); }
+.connexion__boite label { display: grid; gap: .4rem; font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.connexion__boite input { font: 400 1rem var(--sans); padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.connexion__boite input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(77,126,55,.15); }
+.connexion__boite .btn { justify-content: center; }
+.connexion__msg { font-size: .9rem; color: #a33; min-height: 1.3em; }
+
+/* Barre de semaine */
+.barre { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .8rem; padding: 1rem 20px; background: var(--olive); color: var(--sand-light); }
+.barre h1 { font-size: 1.9rem; color: var(--sand-light); margin: 0; }
+.barre p { font-size: .85rem; color: var(--sand); }
+.barre__nav { display: flex; gap: .4rem; flex-wrap: wrap; }
+.barre__nav button { font: 500 .85rem var(--sans); background: transparent; color: var(--sand-light); border: 1px solid rgba(245,240,231,.45); border-radius: 6px; padding: .5rem .8rem; cursor: pointer; }
+.barre__nav button:hover { background: var(--sand-light); color: var(--olive); }
+.legende { display: flex; flex-wrap: wrap; gap: 1rem; padding: .9rem 20px 0; font-size: .82rem; color: var(--muted); }
+.legende i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: .4rem; vertical-align: -1px; }
+.l-libre { background: #fff; border: 1px solid var(--sage); }
+.l-rdv { background: var(--green); }
+.l-bloque { background: var(--sand); border: 1px solid var(--olive); }
+.msg { padding: .5rem 20px; font-size: .9rem; color: var(--green-text); min-height: 2rem; }
+.msg.err { color: #a33; }
+
+/* Jours et créneaux */
+.semaine { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 0 20px 3rem; }
+.jour { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: .8rem; }
+.jour--auj { border: 2px solid var(--terracotta); }
+.jour--passe { opacity: .55; }
+.jour__tete { display: flex; justify-content: space-between; align-items: baseline; gap: .4rem; margin-bottom: .2rem; }
+.jour h2 { font-size: 1.45rem; margin: 0; }
+.jour h2::first-letter { text-transform: uppercase; }
+.lien { background: none; border: 0; color: var(--terracotta-text); font: 500 .75rem var(--sans); text-decoration: underline; cursor: pointer; text-align: right; }
+.journee { background: var(--sand); border-radius: 8px; padding: .4rem .7rem; margin-top: .5rem; font-size: .8rem; font-weight: 600; color: var(--muted); }
+.creneau { border-radius: 8px; padding: .6rem .7rem; margin-top: .5rem; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--sage); font-size: .88rem; }
+.creneau__h { font-weight: 600; margin-right: .3rem; }
+.creneau__etat { color: var(--muted); font-size: .8rem; }
+.creneau strong { display: block; font-size: .95rem; margin-top: .1rem; }
+.creneau__det { font-size: .8rem; color: var(--muted); }
+.creneau--rdv { background: var(--green); color: #fff; border-color: var(--green); }
+.creneau--rdv .creneau__etat, .creneau--rdv .creneau__det { color: rgba(255,255,255,.88); }
+.creneau--rdv a { color: #fff; }
+.creneau--bloque { background: var(--sand); border-left-color: var(--olive); color: var(--muted); }
+.actions-c { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .45rem; }
+.actions-c button { font: 600 .74rem var(--sans); border-radius: 6px; padding: .3rem .55rem; border: 1px solid var(--green); background: #fff; color: var(--green-text); cursor: pointer; }
+.actions-c button.plein { background: var(--green); color: #fff; }
+.creneau--rdv .actions-c button { background: transparent; border-color: #fff; color: #fff; }
+.creneau--bloque .actions-c button { background: transparent; border-color: var(--olive); color: var(--olive); }
+
+/* Fenêtres */
+.fond { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(46,51,37,.45); }
+.fond.ouvert { display: flex; }
+.boite { width: 100%; max-width: 420px; background: var(--paper); border-radius: var(--r); padding: 1.6rem; }
+.boite h2 { font-size: 1.9rem; margin-bottom: .3rem; }
+.boite p { color: var(--muted); margin-bottom: .8rem; }
+.boite label { display: block; font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: .7rem; }
+.boite input[type=text], .boite input[type=tel], .boite select { display: block; width: 100%; margin-top: .3rem; padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 6px; font: 400 1rem var(--sans); background: #fff; }
+.boite .case { display: flex; gap: .5rem; align-items: center; text-transform: none; letter-spacing: 0; font-weight: 400; font-size: .92rem; color: var(--ink); }
+.boite__fin { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1.3rem; }
+.boite__fin button { font: 600 .9rem var(--sans); border-radius: 6px; padding: .65rem 1rem; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+.boite__fin .ok { background: var(--green); border-color: var(--green); color: #fff; }
+.boite__fin .danger { background: var(--terracotta-text); border-color: var(--terracotta-text); color: #fff; }
+
+@media (max-width: 1100px) { .semaine { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) {
+  .semaine { grid-template-columns: 1fr; padding: 0 12px 3rem; }
+  .barre, .legende, .msg, .espace__top { padding-left: 12px; padding-right: 12px; }
+}
