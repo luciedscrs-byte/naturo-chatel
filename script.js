@@ -3,13 +3,12 @@
 // Adresse de l'application Google (Apps Script) qui gère les réservations.
 // Voir le guide « reservation-google/A LIRE - installation.md ».
 // Tant qu'elle est vide, le formulaire ouvre la messagerie du visiteur avec la demande déjà remplie.
-const URL_RESERVATION = "https://script.google.com/macros/s/AKfycbye-OOl9Kv-CW7De0os4knkaHWUywqgBrN198Av8aWEmMypscq7T62aj6kva0UMusJQ/exec";
+const URL_RESERVATION = "https://script.google.com/macros/s/AKfycbx2z12Z0zSfJIaTCsBAx7OwuAwBtobzKeo3evOrUdKvOKup8YTvb36BneXLw4NmV95Wxw/exec";
 
-// Jours de consultation : 0 = dimanche, 1 = lundi … 6 = samedi (du lundi au vendredi)
+// Les jours et horaires de consultation se règlent dans l'Espace praticienne (bouton « Mes horaires ») :
+// le site affiche les créneaux libres envoyés par le programme Google.
+// Ces valeurs ne servent que si le programme Google ne répond pas.
 const JOURS_CONSULTATION = [1, 2, 3, 4, 5];
-
-// Créneaux de 1 h 30, de 9h à 17h (dernier rendez-vous), sans rendez-vous entre 12h et 14h
-// (doivent correspondre aux réglages du programme Google)
 const HORAIRES = ["9h00", "10h30", "14h00", "15h30", "17h00"];
 
 // Réservation possible jusqu'à 3 mois à l'avance
@@ -52,24 +51,21 @@ if (form) {
 
   // Créneaux libres de la date choisie
   const chargerCreneaux = async () => {
-    const jour = new Date(date.value + "T12:00").getDay();
-    const ok = !date.value || JOURS_CONSULTATION.includes(jour);
-    const jours = JOURS_CONSULTATION.map((j) => NOMS_JOURS[j]).join(", ");
-    date.setCustomValidity(ok ? "" : `Les consultations ont lieu les jours suivants : ${jours}.`);
-    if (!date.value || !ok) {
-      if (!ok) date.reportValidity();
+    date.setCustomValidity("");
+    if (!date.value) {
       remplirHeures([], "Choisir d'abord une date");
       return;
     }
     if (!URL_RESERVATION) {
-      remplirHeures(HORAIRES);
+      const jour = new Date(date.value + "T12:00").getDay();
+      remplirHeures(JOURS_CONSULTATION.includes(jour) ? HORAIRES : [], "Pas de consultation ce jour-là");
       return;
     }
     remplirHeures([], "Chargement des créneaux…");
     try {
       const res = await fetch(`${URL_RESERVATION}?date=${date.value}`);
       const json = await res.json();
-      remplirHeures(json.disponibles || [], "Complet ce jour-là, choisissez une autre date");
+      remplirHeures(json.disponibles || [], "Aucun créneau libre ce jour-là, choisissez une autre date");
     } catch {
       remplirHeures(HORAIRES);
     }

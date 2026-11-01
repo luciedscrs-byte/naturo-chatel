@@ -34,6 +34,7 @@
     ecrire(null);
     $("ecran-agenda").hidden = true;
     $("deconnexion").hidden = true;
+    $("lien-secours").hidden = true;
     $("ecran-connexion").hidden = false;
     $("msg-connexion").textContent = texte || "";
     $("motdepasse").value = "";
@@ -119,15 +120,30 @@
     donnees = d;
     $("titre").textContent = d.titre;
     $("compte").textContent = `${d.nbRdv} rendez-vous cette semaine`;
+    if (d.secours) {
+      $("lien-secours").href = d.secours;
+      $("lien-secours").hidden = false;
+    }
     $("semaine").innerHTML = d.jours.map((j, ji) => {
-      let tete = "";
-      if (!j.passe) {
-        tete = j.journee && j.journee.etat === "bloque"
-          ? `<button class="lien" data-act="debloquer" data-ji="${ji}" data-type="j" data-i="0">Débloquer la journée</button>`
-          : `<button class="lien" data-act="bloquerJour" data-ji="${ji}">Bloquer la journée</button>`;
+      const classes = `jour${j.passe ? " jour--passe" : ""}${j.aujourdhui ? " jour--auj" : ""}${j.ferme ? " jour--ferme" : ""}`;
+      const badge = j.special ? '<span class="badge">Horaires modifiés</span>' : "";
+      if (j.ferme) {
+        return `<section class="${classes}">
+          <div class="jour__tete"><h2>${esc(j.label)}</h2>${badge}</div>
+          <p class="jour__ferme">Fermé</p>
+          ${j.passe ? "" : `<button class="ouvrir-jour" data-act="horairesJour" data-ji="${ji}">+ Ouvrir ce jour</button>`}
+        </section>`;
       }
-      return `<section class="jour${j.passe ? " jour--passe" : ""}${j.aujourdhui ? " jour--auj" : ""}">
-        <div class="jour__tete"><h2>${esc(j.label)}</h2>${tete}</div>
+      let liens = "";
+      if (!j.passe) {
+        liens = `<div class="jour__liens"><button class="lien" data-act="horairesJour" data-ji="${ji}">Horaires de ce jour</button>` +
+          (j.journee && j.journee.etat === "bloque"
+            ? `<button class="lien" data-act="debloquer" data-ji="${ji}" data-type="j" data-i="0">Débloquer la journée</button>`
+            : `<button class="lien" data-act="bloquerJour" data-ji="${ji}">Bloquer la journée</button>`) + "</div>";
+      }
+      return `<section class="${classes}">
+        <div class="jour__tete"><h2>${esc(j.label)}</h2>${badge}</div>
+        ${liens}
         ${j.journee ? '<div class="journee">Journée bloquée (congés, absence…)</div>' : ""}
         ${j.creneaux.map((c, i) => carte(j, ji, c, "c", i)).join("")}
         ${j.autres.map((c, i) => carte(j, ji, c, "a", i)).join("")}
@@ -154,6 +170,16 @@
 
     if (b.dataset.act === "bloquer") action("Blocage…", "bloquer", { date: j.date, heure: c.heure });
     if (b.dataset.act === "debloquer") action("Déblocage…", "supprimer", { id: c.id, date: j.date });
+
+    if (b.dataset.act === "horairesJour") {
+      editeurs.jour = j.horaires.slice();
+      ouvrir(`<h2>Horaires du ${esc(j.label)}</h2>
+        <p>${j.special ? "Ce jour a des horaires particuliers." : "Ce jour suit vos horaires habituels."} Les changements ne concernent <strong>que cette date</strong>.</p>
+        ${editeur("jour")}
+        <div class="boite__fin">${j.special ? '<button id="reinit">Revenir aux horaires habituels</button>' : ""}<button data-fermer>Retour</button><button class="ok" id="valider">Enregistrer pour ce jour</button></div>`);
+      $("valider").onclick = () => { fermer(); action("Enregistrement des horaires…", "enregistrerJour", { date: j.date, horaires: JSON.stringify(editeurs.jour) }); };
+      if ($("reinit")) $("reinit").onclick = () => { fermer(); action("Retour aux horaires habituels…", "reinitialiserJour", { date: j.date }); };
+    }
 
     if (b.dataset.act === "bloquerJour") {
       ouvrir(`<h2>Bloquer la journée</h2><p>Plus aucun créneau ne sera proposé sur le site le ${esc(j.label)}. Les rendez-vous déjà pris sont conservés.</p>
@@ -188,6 +214,124 @@
         fermer();
         action("Annulation…", "annuler", { id: c.id, date: j.date, prevenir });
       };
+    }
+  });
+
+  // ----- Éditeur d'horaires (étiquettes ✕, ajout, remplissage automatique)
+  const editeurs = {};
+  const minutes = (h) => { const [a, b] = h.split("h").map(Number); return a * 60 + b; };
+  const versHeure = (v) => { const [h, m] = v.split(":"); return `${Number(h)}h${m}`; };
+  const versChamp = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+  const trier = (l) => [...new Set(l)].sort((a, b) => minutes(a) - minutes(b));
+
+  function editeur(id) {
+    const liste = editeurs[id];
+    const suivant = liste.length ? Math.min(minutes(liste[liste.length - 1]) + 90, 23 * 60) : 9 * 60;
+    return `<div class="ed" data-ed="${id}">
+      <div class="ed__chips">${liste.length
+        ? liste.map((h) => `<span class="chip">${h}<button type="button" data-ed-act="retirer" data-h="${h}" aria-label="Retirer ${h}">✕</button></span>`).join("")
+        : '<span class="ed__ferme">Fermé : aucun créneau</span>'}</div>
+      <div class="ed__ajout">
+        <input type="time" step="900" value="${versChamp(suivant)}" aria-label="Heure à ajouter">
+        <button type="button" data-ed-act="ajouter">+ Ajouter</button>
+        ${liste.length ? '<button type="button" class="ed__vider" data-ed-act="vider">Fermer ce jour</button>' : ""}
+      </div>
+      <details class="ed__auto"><summary>Remplir automatiquement</summary>
+        <div class="ed__grille">
+          <label>Premier RDV<input type="time" data-auto="debut" value="09:00"></label>
+          <label>Fin du dernier RDV<input type="time" data-auto="fin" value="18:30"></label>
+          <label>Pause de<input type="time" data-auto="pdeb" value="12:00"></label>
+          <label>à<input type="time" data-auto="pfin" value="14:00"></label>
+          <label>Durée<select data-auto="duree"><option value="90">1 h 30</option><option value="60">1 h</option></select></label>
+        </div>
+        <button type="button" data-ed-act="remplir">Remplir cette journée</button>
+      </details>
+    </div>`;
+  }
+
+  function remplir(ed) {
+    const v = (n) => ed.querySelector(`[data-auto="${n}"]`).value;
+    const enMin = (t) => (t ? minutes(versHeure(t)) : null);
+    const debut = enMin(v("debut")), fin = enMin(v("fin")), pdeb = enMin(v("pdeb")), pfin = enMin(v("pfin"));
+    const duree = Number(v("duree"));
+    const liste = [];
+    if (debut === null || fin === null) return liste;
+    for (let t = debut; t + duree <= fin && liste.length < 24;) {
+      if (pdeb !== null && pfin !== null && t < pfin && t + duree > pdeb) { t = Math.max(t, pfin); continue; }
+      liste.push(`${Math.floor(t / 60)}h${pad(t % 60)}`);
+      t += duree;
+    }
+    return liste;
+  }
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-ed-act]");
+    if (!b) return;
+    const ed = b.closest("[data-ed]");
+    const id = ed.dataset.ed;
+    let liste = editeurs[id];
+    if (b.dataset.edAct === "retirer") liste = liste.filter((h) => h !== b.dataset.h);
+    if (b.dataset.edAct === "vider") liste = [];
+    if (b.dataset.edAct === "ajouter") {
+      const champ = ed.querySelector(".ed__ajout input");
+      if (!champ.value) return champ.focus();
+      liste = trier(liste.concat(versHeure(champ.value)));
+    }
+    if (b.dataset.edAct === "remplir") {
+      liste = remplir(ed);
+      if (!liste.length) return;
+    }
+    editeurs[id] = liste;
+    ed.outerHTML = editeur(id);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.matches(".ed__ajout input")) {
+      e.preventDefault();
+      e.target.closest(".ed").querySelector('[data-ed-act="ajouter"]').click();
+    }
+  });
+
+  const ORDRE = [1, 2, 3, 4, 5, 6, 0];
+  const NOMS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+  const vueAgenda = ["nav-semaine", "legende", "semaine"];
+
+  async function ouvrirHoraires() {
+    msg("Chargement des horaires…");
+    try {
+      const { semaine } = await api("horaires");
+      ORDRE.forEach((i) => { editeurs[`s${i}`] = (semaine[i] || []).slice(); });
+      $("jours-horaires").innerHTML = ORDRE.map((i) => `<div class="hj"><h3>${NOMS[i]}</h3>${editeur(`s${i}`)}</div>`).join("");
+      vueAgenda.forEach((id) => { $(id).hidden = true; });
+      $("btn-horaires").hidden = true;
+      $("ecran-horaires").hidden = false;
+      $("titre").textContent = "Mes horaires habituels";
+      $("compte").textContent = "Les créneaux proposés chaque semaine sur le site";
+      msg("");
+      window.scrollTo(0, 0);
+    } catch (err) {
+      msg(err.message, true);
+    }
+  }
+
+  function fermerHoraires() {
+    $("ecran-horaires").hidden = true;
+    vueAgenda.forEach((id) => { $(id).hidden = false; });
+    $("btn-horaires").hidden = false;
+    return charger();
+  }
+
+  $("btn-horaires").addEventListener("click", ouvrirHoraires);
+  $("horaires-annuler").addEventListener("click", fermerHoraires);
+  $("horaires-enregistrer").addEventListener("click", async () => {
+    const semaine = {};
+    ORDRE.forEach((i) => { semaine[i] = editeurs[`s${i}`]; });
+    msg("Enregistrement…");
+    try {
+      await api("enregistrerSemaine", { semaine: JSON.stringify(semaine) });
+      await fermerHoraires();
+      msg("Vos horaires habituels sont enregistrés : le site propose désormais ces créneaux.");
+    } catch (err) {
+      msg(err.message, true);
     }
   });
 

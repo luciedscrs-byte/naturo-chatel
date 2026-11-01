@@ -2,7 +2,7 @@
 .espace { min-height: 100vh; }
 .espace__top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 20px; background: var(--paper); border-bottom: 1px solid var(--line); }
 .espace__top .header__logo img { height: 46px; width: auto; }
-.espace__liens { display: flex; gap: 1.2rem; align-items: center; font-size: .9rem; white-space: nowrap; }
+.espace__liens { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .3rem 1.2rem; align-items: center; font-size: .9rem; white-space: nowrap; }
 .espace__liens a, .espace__liens button { color: var(--green-text); background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Connexion */
@@ -32,7 +32,7 @@
 .msg.err { color: #a33; }
 
 /* Jours et créneaux */
-.semaine { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 0 20px 3rem; }
+.semaine { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; padding: 0 20px 3rem; }
 .jour { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: .8rem; }
 .jour--auj { border: 2px solid var(--terracotta); }
 .jour--passe { opacity: .55; }
@@ -56,10 +56,51 @@
 .creneau--rdv .actions-c button { background: transparent; border-color: #fff; color: #fff; }
 .creneau--bloque .actions-c button { background: transparent; border-color: var(--olive); color: var(--olive); }
 
+/* Liens et badges des jours */
+.jour__liens { display: flex; flex-wrap: wrap; gap: .2rem .9rem; margin-bottom: .2rem; }
+.jour__liens .lien { text-align: left; padding: 0; }
+.badge { display: inline-block; font: 600 .68rem var(--sans); letter-spacing: .04em; text-transform: uppercase; color: #fff; background: var(--green); border-radius: 999px; padding: .2rem .55rem; white-space: nowrap; }
+.jour--ferme { background: transparent; border-style: dashed; }
+.jour__ferme { color: var(--muted); font-size: .9rem; margin: .6rem 0; }
+.ouvrir-jour { font: 600 .8rem var(--sans); background: #fff; color: var(--green-text); border: 1px dashed var(--green); border-radius: 999px; padding: .45rem .9rem; cursor: pointer; }
+.ouvrir-jour:hover { background: var(--green); color: #fff; border-style: solid; }
+.barre__horaires { font: 600 .85rem var(--sans); background: #fff; color: var(--green-text); border: 0; border-radius: 999px; padding: .6rem 1.1rem; cursor: pointer; }
+.barre__horaires:hover { background: var(--sand-light); }
+
+/* Éditeur d'horaires */
+.ed { display: grid; gap: .7rem; margin-top: .6rem; }
+.ed__chips { display: flex; flex-wrap: wrap; gap: .4rem; min-height: 2rem; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: .35rem; font: 600 .9rem var(--sans); color: var(--green-text); background: var(--sand-light); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .35rem .3rem .75rem; }
+.chip button { display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; border: 0; background: #fff; color: var(--green-text); font-size: .7rem; cursor: pointer; }
+.chip button:hover { background: #a33; color: #fff; }
+.ed__ferme { color: var(--muted); font-size: .88rem; font-style: italic; }
+.ed__ajout { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.ed__ajout input { font: 400 .95rem var(--sans); padding: .45rem .6rem; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.ed__ajout button, .ed__auto > button { font: 600 .82rem var(--sans); border-radius: 999px; padding: .45rem .9rem; border: 1px solid var(--green); background: var(--green); color: #fff; cursor: pointer; }
+.ed__ajout .ed__vider { background: transparent; color: var(--muted); border-color: var(--line); }
+.ed__auto { border-top: 1px solid var(--line); padding-top: .5rem; }
+.ed__auto summary { cursor: pointer; font: 600 .82rem var(--sans); color: var(--green-text); }
+.ed__grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: .5rem; margin: .6rem 0; }
+.ed__grille label { display: grid; gap: .2rem; font: 600 .68rem var(--sans); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0; }
+.ed__grille input, .ed__grille select { font: 400 .9rem var(--sans); padding: .4rem .5rem; border: 1px solid var(--line); border-radius: 8px; background: #fff; width: 100%; margin: 0; }
+
+/* Écran « Mes horaires habituels » */
+.horaires-page { padding: .5rem 20px 3rem; max-width: 1100px; }
+.horaires-page__intro { max-width: 720px; margin-bottom: 1.4rem; }
+.horaires-page__intro h2 { font-size: 2rem; margin-bottom: .6rem; }
+.horaires-page__intro p { color: var(--muted); margin-bottom: .5rem; }
+.horaires-page__jours { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.hj { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 1rem; }
+.hj h3 { font-size: 1.3rem; margin: 0; }
+.horaires-page__fin { position: sticky; bottom: 0; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .6rem; padding: 1rem 0; margin-top: 1rem; background: linear-gradient(transparent, var(--sand-light) 35%); }
+.btn-principal, .btn-secondaire { font: 600 .9rem var(--sans); border-radius: 999px; padding: .8rem 1.4rem; cursor: pointer; border: 1px solid var(--green); }
+.btn-principal { background: var(--green); color: #fff; }
+.btn-secondaire { background: #fff; color: var(--green-text); }
+
 /* Fenêtres */
 .fond { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(46,51,37,.45); }
 .fond.ouvert { display: flex; }
-.boite { width: 100%; max-width: 420px; background: var(--paper); border-radius: var(--r); padding: 1.6rem; }
+.boite { width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow-y: auto; background: var(--paper); border-radius: var(--r); padding: 1.6rem; }
 .boite h2 { font-size: 1.9rem; margin-bottom: .3rem; }
 .boite p { color: var(--muted); margin-bottom: .8rem; }
 .boite label { display: block; font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: .7rem; }
@@ -70,8 +111,8 @@
 .boite__fin .ok { background: var(--green); border-color: var(--green); color: #fff; }
 .boite__fin .danger { background: var(--terracotta-text); border-color: var(--terracotta-text); color: #fff; }
 
-@media (max-width: 1100px) { .semaine { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) {
   .semaine { grid-template-columns: 1fr; padding: 0 12px 3rem; }
-  .barre, .legende, .msg, .espace__top { padding-left: 12px; padding-right: 12px; }
+  .barre, .legende, .msg, .espace__top, .horaires-page { padding-left: 12px; padding-right: 12px; }
+  .horaires-page__jours { grid-template-columns: 1fr; }
 }
