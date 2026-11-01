@@ -72,11 +72,21 @@
   });
 
   // ----- Agenda
+  const semaineFinie = (d) => d.jours.every((j) => j.passe || (j.aujourdhui && j.ferme));
+  let premierChargement = true;
+
   async function charger() {
     msg("Chargement…");
     try {
-      afficher(await api("agenda", { lundi: iso(lundi) }));
-      msg("");
+      let d = await api("agenda", { lundi: iso(lundi) });
+      // Le week-end, l'agenda s'ouvre sur la semaine à venir plutôt que sur une semaine terminée
+      if (premierChargement && semaineFinie(d)) {
+        lundi.setDate(lundi.getDate() + 7);
+        d = await api("agenda", { lundi: iso(lundi) });
+      }
+      premierChargement = false;
+      afficher(d);
+      msg(semaineFinie(d) ? "Cette semaine est passée : elle se consulte sans modification. Cliquez sur « Suivante › » pour gérer vos créneaux." : "");
     } catch (err) {
       msg(err.message, true);
     }
@@ -126,7 +136,7 @@
     }
     $("semaine").innerHTML = d.jours.map((j, ji) => {
       const classes = `jour${j.passe ? " jour--passe" : ""}${j.aujourdhui ? " jour--auj" : ""}${j.ferme ? " jour--ferme" : ""}`;
-      const badge = j.special ? '<span class="badge">Horaires modifiés</span>' : "";
+      const badge = j.passe ? '<span class="jour__passe">Passé</span>' : (j.special ? '<span class="badge">Horaires modifiés</span>' : "");
       if (j.ferme) {
         return `<section class="${classes}">
           <div class="jour__tete"><h2>${esc(j.label)}</h2>${badge}</div>

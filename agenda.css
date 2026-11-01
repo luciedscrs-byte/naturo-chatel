@@ -60,6 +60,7 @@
 .jour__liens { display: flex; flex-wrap: wrap; gap: .2rem .9rem; margin-bottom: .2rem; }
 .jour__liens .lien { text-align: left; padding: 0; }
 .badge { display: inline-block; font: 600 .68rem var(--sans); letter-spacing: .04em; text-transform: uppercase; color: #fff; background: var(--green); border-radius: 999px; padding: .2rem .55rem; white-space: nowrap; }
+.jour__passe { font: 600 .68rem var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .jour--ferme { background: transparent; border-style: dashed; }
 .jour__ferme { color: var(--muted); font-size: .9rem; margin: .6rem 0; }
 .ouvrir-jour { font: 600 .8rem var(--sans); background: #fff; color: var(--green-text); border: 1px dashed var(--green); border-radius: 999px; padding: .45rem .9rem; cursor: pointer; }
