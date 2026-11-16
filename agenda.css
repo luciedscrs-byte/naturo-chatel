@@ -1,5 +1,5 @@
 /* ===== Espace praticienne (agenda.html) ===== */
-.espace { min-height: 100vh; }
+.espace { min-height: 100vh; --terracotta-text: var(--green-text); --danger: #a3352b; }
 .espace__top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 20px; background: var(--paper); border-bottom: 1px solid var(--line); }
 .espace__top .header__logo img { height: 46px; width: auto; }
 .espace__liens { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .3rem 1.2rem; align-items: center; font-size: .9rem; white-space: nowrap; }
@@ -65,6 +65,15 @@
 .jour__ferme { color: var(--muted); font-size: .9rem; margin: .6rem 0; }
 .ouvrir-jour { font: 600 .8rem var(--sans); background: #fff; color: var(--green-text); border: 1px dashed var(--green); border-radius: 999px; padding: .45rem .9rem; cursor: pointer; }
 .ouvrir-jour:hover { background: var(--green); color: #fff; border-style: solid; }
+.ajout-jour { display: block; width: 100%; margin-top: .6rem; }
+.boite__aide { font-size: .85rem; margin-top: .6rem; }
+.boite textarea { display: block; width: 100%; margin-top: .3rem; padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 6px; font: 400 .95rem var(--sans); background: #fff; resize: vertical; text-transform: none; letter-spacing: 0; }
+.boite label small { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.boite input[type=time] { display: block; margin-top: .3rem; padding: .6rem .8rem; border: 1px solid var(--line); border-radius: 6px; font: 400 1rem var(--sans); background: #fff; }
+.boite__fin { flex-wrap: wrap; }
+.qui { border: 0; margin: .4rem 0 .6rem; display: grid; gap: .35rem; }
+.qui legend { font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .2rem; }
+.qui .case { margin-top: 0; }
 .barre__horaires { font: 600 .85rem var(--sans); background: #fff; color: var(--green-text); border: 0; border-radius: 999px; padding: .6rem 1.1rem; cursor: pointer; }
 .barre__horaires:hover { background: var(--sand-light); }
 
@@ -110,7 +119,7 @@
 .boite__fin { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1.3rem; }
 .boite__fin button { font: 600 .9rem var(--sans); border-radius: 6px; padding: .65rem 1rem; border: 1px solid var(--line); background: #fff; cursor: pointer; }
 .boite__fin .ok { background: var(--green); border-color: var(--green); color: #fff; }
-.boite__fin .danger { background: var(--terracotta-text); border-color: var(--terracotta-text); color: #fff; }
+.boite__fin .danger { background: var(--danger); border-color: var(--danger); color: #fff; }
 
 @media (max-width: 640px) {
   .semaine { grid-template-columns: 1fr; padding: 0 12px 3rem; }

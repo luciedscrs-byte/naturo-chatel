@@ -157,6 +157,7 @@
         ${j.journee ? '<div class="journee">Journée bloquée (congés, absence…)</div>' : ""}
         ${j.creneaux.map((c, i) => carte(j, ji, c, "c", i)).join("")}
         ${j.autres.map((c, i) => carte(j, ji, c, "a", i)).join("")}
+        ${j.passe || j.journee ? "" : `<button class="ouvrir-jour ajout-jour" data-act="creneauJour" data-ji="${ji}">+ Créneau ce jour-là</button>`}
       </section>`;
     }).join("");
   }
@@ -181,19 +182,35 @@
     if (b.dataset.act === "bloquer") action("Blocage…", "bloquer", { date: j.date, heure: c.heure });
     if (b.dataset.act === "debloquer") action("Déblocage…", "supprimer", { id: c.id, date: j.date });
 
+    if (b.dataset.act === "creneauJour") {
+      const dernier = j.horaires.length ? minutes(j.horaires[j.horaires.length - 1]) + 90 : 9 * 60;
+      ouvrir(`<h2>Ajouter un créneau</h2>
+        <p>Uniquement le <strong>${esc(j.label)}</strong>. Les autres semaines ne changent pas.</p>
+        <label>Heure du créneau<input type="time" id="c-heure" step="900" value="${versChamp(Math.min(dernier, 23 * 60))}"></label>
+        <p class="boite__aide">Pour ajouter ce créneau toutes les semaines, utilisez plutôt « Horaires de chaque semaine ».</p>
+        <div class="boite__fin"><button data-fermer>Fermer sans rien changer</button><button class="ok" id="valider">Ajouter ce créneau</button></div>`);
+      $("c-heure").focus();
+      $("valider").onclick = () => {
+        if (!$("c-heure").value) return $("c-heure").focus();
+        const horaires = trier(j.horaires.concat(versHeure($("c-heure").value)));
+        fermer();
+        action("Ajout du créneau…", "enregistrerJour", { date: j.date, horaires: JSON.stringify(horaires) });
+      };
+    }
+
     if (b.dataset.act === "horairesJour") {
       editeurs.jour = j.horaires.slice();
       ouvrir(`<h2>Horaires du ${esc(j.label)}</h2>
-        <p>${j.special ? "Ce jour a des horaires particuliers." : "Ce jour suit vos horaires habituels."} Les changements ne concernent <strong>que cette date</strong>.</p>
+        <p>${j.special ? "Ce jour a des horaires particuliers." : "Ce jour suit vos horaires de chaque semaine."} Les changements ne concernent <strong>que cette date</strong>.</p>
         ${editeur("jour")}
-        <div class="boite__fin">${j.special ? '<button id="reinit">Revenir aux horaires habituels</button>' : ""}<button data-fermer>Retour</button><button class="ok" id="valider">Enregistrer pour ce jour</button></div>`);
+        <div class="boite__fin">${j.special ? '<button id="reinit">Revenir aux horaires de chaque semaine</button>' : ""}<button data-fermer>Fermer sans enregistrer</button><button class="ok" id="valider">Enregistrer pour ce jour</button></div>`);
       $("valider").onclick = () => { fermer(); action("Enregistrement des horaires…", "enregistrerJour", { date: j.date, horaires: JSON.stringify(editeurs.jour) }); };
-      if ($("reinit")) $("reinit").onclick = () => { fermer(); action("Retour aux horaires habituels…", "reinitialiserJour", { date: j.date }); };
+      if ($("reinit")) $("reinit").onclick = () => { fermer(); action("Retour aux horaires de chaque semaine…", "reinitialiserJour", { date: j.date }); };
     }
 
     if (b.dataset.act === "bloquerJour") {
       ouvrir(`<h2>Bloquer la journée</h2><p>Plus aucun créneau ne sera proposé sur le site le ${esc(j.label)}. Les rendez-vous déjà pris sont conservés.</p>
-        <div class="boite__fin"><button data-fermer>Retour</button><button class="ok" id="valider">Bloquer</button></div>`);
+        <div class="boite__fin"><button data-fermer>Ne rien changer</button><button class="ok" id="valider">Bloquer la journée</button></div>`);
       $("valider").onclick = () => { fermer(); action("Blocage…", "bloquerJournee", { date: j.date }); };
     }
 
@@ -203,7 +220,7 @@
         <label>Téléphone<input type="tel" id="a-tel"></label>
         <label>Consultation<select id="a-cons"><option>Première consultation · 1 h 30</option><option>Suivi · 1 h</option></select></label>
         <label>Format<select id="a-format"><option>En cabinet</option><option>Sur mon lieu de cure</option><option>Par téléphone</option><option>En visio WhatsApp</option></select></label>
-        <div class="boite__fin"><button data-fermer>Retour</button><button class="ok" id="valider">Enregistrer</button></div>`);
+        <div class="boite__fin"><button data-fermer>Fermer sans enregistrer</button><button class="ok" id="valider">Enregistrer le rendez-vous</button></div>`);
       $("a-nom").focus();
       $("valider").onclick = () => {
         const nom = $("a-nom").value.trim();
@@ -216,9 +233,10 @@
 
     if (b.dataset.act === "annuler") {
       const mail = c.email && c.email.includes("@");
-      ouvrir(`<h2>Annuler le rendez-vous</h2><p>${esc(c.nom)}, ${esc(j.label)} à ${esc(c.heure)}. Le créneau redeviendra libre sur le site.</p>
-        ${mail ? `<label class="case"><input type="checkbox" id="prevenir" checked> Prévenir le client par e-mail (${esc(c.email)})</label>` : "<p>Pas d'e-mail enregistré : pensez à prévenir le client par téléphone.</p>"}
-        <div class="boite__fin"><button data-fermer>Retour</button><button class="danger" id="valider">Annuler le RDV</button></div>`);
+      ouvrir(`<h2>Annuler le rendez-vous ?</h2><p>${esc(c.nom)}, ${esc(j.label)} à ${esc(c.heure)}. Le créneau redeviendra libre sur le site.</p>
+        ${mail ? `<label class="case"><input type="checkbox" id="prevenir" checked> Envoyer la confirmation écrite par e-mail (${esc(c.email)})</label>`
+          : "<p>Pas d'e-mail enregistré : pas de confirmation écrite possible.</p>"}
+        <div class="boite__fin"><button data-fermer>Garder le rendez-vous</button><button class="danger" id="valider">Confirmer l'annulation</button></div>`);
       $("valider").onclick = () => {
         const prevenir = $("prevenir") && $("prevenir").checked ? "1" : "0";
         fermer();
@@ -314,7 +332,7 @@
       vueAgenda.forEach((id) => { $(id).hidden = true; });
       $("btn-horaires").hidden = true;
       $("ecran-horaires").hidden = false;
-      $("titre").textContent = "Mes horaires habituels";
+      $("titre").textContent = "Horaires de chaque semaine";
       $("compte").textContent = "Les créneaux proposés chaque semaine sur le site";
       msg("");
       window.scrollTo(0, 0);
@@ -339,7 +357,7 @@
     try {
       await api("enregistrerSemaine", { semaine: JSON.stringify(semaine) });
       await fermerHoraires();
-      msg("Vos horaires habituels sont enregistrés : le site propose désormais ces créneaux.");
+      msg("Vos horaires de chaque semaine sont enregistrés : le site propose désormais ces créneaux.");
     } catch (err) {
       msg(err.message, true);
     }
