@@ -36,7 +36,7 @@
 .jour { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: .8rem; }
 .jour--auj { border: 2px solid var(--terracotta); }
 .jour--passe { opacity: .55; }
-.jour__tete { display: flex; justify-content: space-between; align-items: baseline; gap: .4rem; margin-bottom: .2rem; }
+.jour__tete { display: flex; flex-direction: column; align-items: flex-start; gap: .35rem; margin-bottom: .3rem; }
 .jour h2 { font-size: 1.45rem; margin: 0; }
 .jour h2::first-letter { text-transform: uppercase; }
 .lien { background: none; border: 0; color: var(--terracotta-text); font: 500 .75rem var(--sans); text-decoration: underline; cursor: pointer; text-align: right; }
