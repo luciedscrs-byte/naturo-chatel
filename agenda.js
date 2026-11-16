@@ -122,7 +122,7 @@
     if (j.journee) {
       return `<div class="creneau creneau--bloque"><span class="creneau__h">${esc(c.heure)}</span><span class="creneau__etat">Journée bloquée</span></div>`;
     }
-    return `<div class="creneau"><span class="creneau__h">${esc(c.heure)}</span><span class="creneau__etat">Libre</span>
+    return `<div class="creneau">${actif ? `<button class="creneau__suppr" data-act="supprimerCreneau" ${ref} aria-label="Supprimer le créneau de ${esc(c.heure)}" title="Supprimer ce créneau">✕</button>` : ""}<span class="creneau__h">${esc(c.heure)}</span><span class="creneau__etat">Libre</span>
       ${actif ? `<div class="actions-c"><button class="plein" data-act="ajouter" ${ref}>+ Rendez-vous</button><button data-act="bloquer" ${ref}>Bloquer</button></div>` : ""}</div>`;
   }
 
@@ -181,6 +181,22 @@
 
     if (b.dataset.act === "bloquer") action("Blocage…", "bloquer", { date: j.date, heure: c.heure });
     if (b.dataset.act === "debloquer") action("Déblocage…", "supprimer", { id: c.id, date: j.date });
+
+    if (b.dataset.act === "supprimerCreneau") {
+      const [an, mo, jo] = j.date.split("-").map(Number);
+      const habituel = (donnees.semaine[new Date(an, mo - 1, jo, 12).getDay()] || []).slice();
+      const resteJour = j.horaires.filter((h) => h !== c.heure);
+      ouvrir(`<h2>Supprimer le créneau de ${esc(c.heure)} ?</h2>
+        <p>Il ne sera plus proposé sur le site le <strong>${esc(j.label)}</strong>. Les autres semaines ne changent pas.</p>
+        <div class="boite__fin"><button data-fermer>Garder le créneau</button><button class="ok" id="valider">Supprimer le créneau</button></div>`);
+      $("valider").onclick = () => {
+        fermer();
+        // Si la journée redevient identique aux horaires habituels, on enlève simplement la modification
+        const identique = resteJour.length === habituel.length && resteJour.every((h, n) => h === habituel[n]);
+        if (identique) action("Suppression du créneau…", "reinitialiserJour", { date: j.date });
+        else action("Suppression du créneau…", "enregistrerJour", { date: j.date, horaires: JSON.stringify(resteJour) });
+      };
+    }
 
     if (b.dataset.act === "creneauJour") {
       const dernier = j.horaires.length ? minutes(j.horaires[j.horaires.length - 1]) + 90 : 9 * 60;

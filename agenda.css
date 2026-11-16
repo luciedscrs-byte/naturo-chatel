@@ -42,6 +42,9 @@
 .lien { background: none; border: 0; color: var(--terracotta-text); font: 500 .75rem var(--sans); text-decoration: underline; cursor: pointer; text-align: right; }
 .journee { background: var(--sand); border-radius: 8px; padding: .4rem .7rem; margin-top: .5rem; font-size: .8rem; font-weight: 600; color: var(--muted); }
 .creneau { border-radius: 8px; padding: .6rem .7rem; margin-top: .5rem; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--sage); font-size: .88rem; }
+.creneau { position: relative; }
+.creneau__suppr { position: absolute; top: .4rem; right: .4rem; width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 0; background: transparent; color: var(--muted); font-size: .85rem; line-height: 1; cursor: pointer; }
+.creneau__suppr:hover, .creneau__suppr:focus-visible { background: var(--sand); color: var(--danger); }
 .creneau__h { font-weight: 600; margin-right: .3rem; }
 .creneau__etat { color: var(--muted); font-size: .8rem; }
 .creneau strong { display: block; font-size: .95rem; margin-top: .1rem; }
