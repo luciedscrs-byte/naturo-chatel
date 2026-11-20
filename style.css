@@ -383,6 +383,9 @@ strong { font-weight: 600; color: var(--sapin); }
 /* Carte « Venir au cabinet » (page Contact) */
 .carte { background: var(--white); border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow); }
 .carte svg { width: 100%; height: auto; display: block; font-family: var(--sans); }
+.carte__google { display: grid; justify-items: center; gap: .55rem; padding: .8rem .5rem .4rem; text-align: center; }
+.carte__google small { font-size: .78rem; line-height: 1.45; color: var(--sapin); opacity: .7; max-width: 34rem; }
+.carte__cadre { display: block; width: 100%; aspect-ratio: 1; min-height: 320px; border: 0; border-radius: calc(var(--radius) - .5rem); }
 .carte__puy { fill: var(--sapin); opacity: .16; }
 .carte__route { fill: none; stroke: var(--sapin); stroke-width: 2; stroke-dasharray: 2 7; stroke-linecap: round; opacity: .55; }
 .carte__ville circle { fill: var(--white); stroke: var(--sapin); stroke-width: 3; }

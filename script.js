@@ -149,3 +149,17 @@ const actif = tabs && tabs.querySelector('[aria-current="page"]');
 if (actif && tabs.scrollWidth > tabs.clientWidth) {
   tabs.scrollLeft = actif.offsetLeft - (tabs.clientWidth - actif.offsetWidth) / 2;
 }
+
+// Carte Google « au clic » : rien n'est chargé depuis Google tant que le visiteur ne l'a pas demandé
+const boutonCarte = document.getElementById("carte-google");
+if (boutonCarte) {
+  boutonCarte.addEventListener("click", () => {
+    const carte = document.getElementById("carte-acces");
+    const cadre = document.createElement("iframe");
+    cadre.src = "https://maps.google.com/maps?q=Naturopathe%20Ch%C3%A2tel-Guyon%20Nathalie%20Berthon&z=13&hl=fr&output=embed";
+    cadre.title = "Carte Google : cabinet de Nathalie Berthon à Châtel-Guyon";
+    cadre.referrerPolicy = "no-referrer-when-downgrade";
+    cadre.className = "carte__cadre";
+    carte.replaceChildren(cadre);
+  });
+}
