@@ -28,6 +28,15 @@ if (form) {
   const bouton = form.querySelector("button[type=submit]");
   const format = form.querySelector("#format");
   const sejour = form.querySelector(".form__sejour");
+  const motif = form.querySelector("#motif");
+  const accordMotif = form.querySelector(".form__accord-motif");
+  // Case d'accord visible et obligatoire seulement si un motif est choisi (donnée de santé)
+  const majMotif = () => {
+    const rdv = form.querySelector("input[name=demande]:checked").value === "Rendez-vous";
+    const choisi = rdv && motif.value !== "";
+    accordMotif.hidden = !choisi;
+    accordMotif.querySelector("input").required = choisi;
+  };
   const champSejour = sejour.querySelector("input");
   const date = form.querySelector("#date");
   const heure = form.querySelector("#heure");
@@ -86,9 +95,11 @@ if (form) {
     message.required = !rdv;
     bouton.textContent = rdv ? "Réserver ce créneau" : "Envoyer ma question";
     majSejour();
+    majMotif();
   };
   form.querySelectorAll("input[name=demande]").forEach((r) => r.addEventListener("change", majMode));
   format.addEventListener("change", majSejour);
+  motif.addEventListener("change", majMotif);
   majMode();
 
   // Envoi

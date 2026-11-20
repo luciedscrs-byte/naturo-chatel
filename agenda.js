@@ -111,6 +111,7 @@
         <strong>${esc(c.nom)}</strong>
         ${c.telephone ? `<div class="creneau__det"><a href="tel:${esc(c.telephone.replace(/\s/g, ""))}">${esc(c.telephone)}</a></div>` : ""}
         ${det ? `<div class="creneau__det">${esc(det)}</div>` : ""}
+        ${c.motif ? `<div class="creneau__det">Motif : ${esc(c.motif)}</div>` : ""}
         ${c.adresse ? `<div class="creneau__det">Séjour : ${esc(c.adresse)}</div>` : ""}
         ${c.message ? `<div class="creneau__det">« ${esc(c.message)} »</div>` : ""}
         ${actif ? `<div class="actions-c"><button data-act="annuler" ${ref}>Annuler le RDV</button></div>` : ""}</div>`;
